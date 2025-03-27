@@ -51,7 +51,7 @@ async def predict(input_data: InputData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-#  Endpoint para reentrenar con primeras 8 y probar con las últimas 2
+
 @app.post("/retrain/")
 async def retrain(input_data: InputData):
     try:
