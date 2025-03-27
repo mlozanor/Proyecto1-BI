@@ -4,14 +4,15 @@ from typing import List, Dict, Union
 import pandas as pd
 import joblib
 from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split
 
-# ✅ Cargar el pipeline completo
+#  Cargar el pipeline completo
 pipeline = joblib.load("pipeline_model.pkl")
 
-# ✅ Crear la aplicación FastAPI
+#  Crear la aplicación FastAPI
 app = FastAPI()
 
-# ✅ Modelo de entrada
+#  Modelo de entrada
 class InputData(BaseModel):
     data: List[Dict[str, Union[str, int, float, None]]]
 
@@ -50,7 +51,7 @@ async def predict(input_data: InputData):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# ✅ Endpoint para reentrenar con primeras 8 y probar con las últimas 2
+#  Endpoint para reentrenar con primeras 8 y probar con las últimas 2
 @app.post("/retrain/")
 async def retrain(input_data: InputData):
     try:
@@ -63,10 +64,9 @@ async def retrain(input_data: InputData):
         if not {'Titulo', 'Descripcion', 'Label'}.issubset(df.columns):
             raise HTTPException(status_code=400, detail="Faltan columnas requeridas: 'Titulo', 'Descripcion', 'Label'")
 
-        # ✅ Partición de los datos
-        train_df = df.iloc[:8]
-        test_df = df.iloc[-2:]
-
+        #  Partición de los datos
+        train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+        
         # Datos de entrenamiento
         X_train = train_df['Titulo'] + " " + train_df['Descripcion']
         y_train = train_df['Label'].astype(int)
@@ -75,13 +75,13 @@ async def retrain(input_data: InputData):
         X_test = test_df['Titulo'] + " " + test_df['Descripcion']
         y_test = test_df['Label'].astype(int)
 
-        # ✅ Reentrenar el modelo
+        #  Reentrenar el modelo
         pipeline.fit(X_train, y_train)
 
-        # ✅ Guardar el nuevo modelo
+        #  Guardar el nuevo modelo
         joblib.dump(pipeline, "pipeline_model.pkl")
 
-        # ✅ Evaluación
+        #  Evaluación
         predictions = pipeline.predict(X_test)
 
         return {
