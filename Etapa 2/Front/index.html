@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluador de Noticias</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto py-10 px-4">
+        <h1 class="text-3xl font-bold mb-4 text-center">Evaluador de Noticias</h1>
+        
+        <!-- Estado de la API -->
+        <div id="api-status" class="flex flex-col sm:flex-row gap-2 justify-center mb-6">
+            <div id="predict-status" class="max-w-xs p-4 rounded-md border bg-yellow-50">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>API Predicción: <span id="predict-badge" class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-yellow-500 text-white">Verificando...</span></span>
+                </div>
+            </div>
+            <div id="retrain-status" class="max-w-xs p-4 rounded-md border bg-yellow-50">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>API Reentrenamiento: <span id="retrain-badge" class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-yellow-500 text-white">Verificando...</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <div class="tabs-header grid grid-cols-2 mb-8">
+                <button id="tab-individual" class="tab-button active py-2 px-4 text-center border-b-2 border-blue-500 font-medium">Evaluación Individual</button>
+                <button id="tab-reentry" class="tab-button py-2 px-4 text-center border-b-2 border-transparent text-gray-500 font-medium">Reentrada de Datos</button>
+            </div>
+            
+            <div class="tabs-content">
+                <!-- Tab 1: Evaluación Individual -->
+                <div id="content-individual" class="tab-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h2 class="text-xl font-semibold mb-4">Ingresa los datos JSON</h2>
+                            <textarea id="json-input" class="w-full min-h-[300px] p-4 border rounded-md font-mono" placeholder="Pega aquí el JSON con los datos a evaluar..."></textarea>
+                            <button id="evaluate-button" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Evaluar</button>
+                            
+                            <div id="eval-error" class="hidden mt-4 p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
+                                <div class="flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                    </svg>
+                                    <span class="font-bold">Error</span>
+                                </div>
+                                <p id="eval-error-message" class="mt-2"></p>
+                            </div>
+                        </div>
+                        
+                        <div id="result-container" class="hidden">
+                            <h2 class="text-xl font-semibold mb-4">Resultado (<span id="current-index">1</span> de <span id="total-items">0</span>)</h2>
+                            
+                            <div class="border rounded-lg shadow-sm bg-white">
+                                <div class="p-4 border-b">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 id="result-title" class="text-lg font-semibold"></h3>
+                                            <p id="result-meta" class="text-sm text-gray-500"></p>
+                                        </div>
+                                        <span id="result-label" class="px-2 py-1 text-xs font-medium rounded-full bg-green-500 text-white">Verdadera</span>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <p id="result-description"></p>
+                                </div>
+                                <div class="p-4 border-t flex justify-between">
+                                    <button id="prev-button" class="px-4 py-2 border rounded-md hover:bg-gray-50" disabled>Anterior</button>
+                                    <button id="next-button" class="px-4 py-2 border rounded-md hover:bg-gray-50" disabled>Siguiente</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab 2: Reentrada de Datos -->
+                <div id="content-reentry" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div class="border rounded-lg shadow-sm bg-white">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Subir archivo JSON</h3>
+                                <p class="text-sm text-gray-500">Sube un archivo JSON con los datos para reentrada al sistema</p>
+                            </div>
+                            <div class="p-4 space-y-4">
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p class="text-sm text-gray-500 mb-4">
+                                        Arrastra y suelta tu archivo JSON aquí, o haz clic para seleccionar
+                                    </p>
+                                    <input type="file" id="file-upload" class="hidden" accept=".json,application/json">
+                                    <label for="file-upload" class="px-4 py-2 border rounded-md hover:bg-gray-50 cursor-pointer">Seleccionar archivo</label>
+                                    
+                                    <p id="file-info" class="mt-4 text-sm hidden">
+                                        Archivo seleccionado: <span id="file-name" class="font-medium"></span> (<span id="file-size"></span> KB)
+                                    </p>
+                                </div>
+                                
+                                <div id="upload-error" class="hidden p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                        </svg>
+                                        <span class="font-bold">Error</span>
+                                    </div>
+                                    <p id="upload-error-message" class="mt-2"></p>
+                                </div>
+                                
+                                <div id="file-valid" class="hidden p-4 border border-green-200 bg-green-50 rounded-md text-green-800">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                        <span class="font-bold">Archivo válido</span>
+                                    </div>
+                                    <p id="file-valid-message" class="mt-2"></p>
+                                </div>
+                                
+                                <div id="upload-progress-container" class="hidden space-y-2">
+                                    <p class="text-sm">Subiendo archivo...</p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="upload-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div id="upload-success" class="hidden p-4 border border-green-200 bg-green-50 rounded-md text-green-800">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                        <span class="font-bold">Subida completada</span>
+                                    </div>
+                                    <p class="mt-2">El archivo se ha subido correctamente.</p>
+                                </div>
+                            </div>
+                            <div class="p-4 border-t">
+                                <button id="upload-button" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Subir archivo</button>
+                            </div>
+                        </div>
+                        
+                        <div id="preview-container" class="hidden border rounded-lg shadow-sm bg-white">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Vista previa de datos</h3>
+                                <p class="text-sm text-gray-500">Mostrando los primeros 3 registros del archivo</p>
+                            </div>
+                            <div class="p-4">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full border-collapse">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="p-2 text-left">ID</th>
+                                                <th class="p-2 text-left">Etiqueta</th>
+                                                <th class="p-2 text-left">Título</th>
+                                                <th class="p-2 text-left">Fecha</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="preview-table-body">
+                                            <!-- Los datos se insertarán aquí -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p id="preview-more" class="text-sm text-gray-500 mt-2 hidden">
+                                    ... y más registros
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
