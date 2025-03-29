@@ -6,8 +6,84 @@
     <title>Evaluador de Noticias</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos para las pestañas */
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #0ea5e9;
+            border-color: #0ea5e9;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Estilos para el drag and drop */
+        .drag-over {
+            background-color: #f0f9ff;
+            border-color: #0ea5e9;
+        }
+        
+        /* Estilos para los gráficos */
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+        
+        /* Tooltip personalizado */
+        .custom-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+    </style>
 </head>
 <body class="bg-gray-50">
     <div class="container mx-auto py-10 px-4">
@@ -35,13 +111,59 @@
                     <span>API Reentrenamiento: <span id="retrain-badge" class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-yellow-500 text-white">Verificando...</span></span>
                 </div>
             </div>
+            <div id="model-info-button" class="max-w-xs p-4 rounded-md border bg-blue-50 cursor-pointer hover:bg-blue-100">
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Información del Modelo</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de información del modelo -->
+        <div id="model-info-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold">Información del Modelo</h3>
+                        <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="model-info-content" class="space-y-4">
+                        <div class="flex justify-center items-center h-20">
+                            <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0   fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones para exportar/importar modelo -->
+                    <div class="mt-6 flex space-x-2">
+                        <button id="export-model-button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Exportar Modelo
+                        </button>
+                        <label for="import-model-file" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer">
+                            Importar Modelo
+                        </label>
+                        <input type="file" id="import-model-file" class="hidden" accept=".json">
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Tabs -->
         <div class="tabs-container">
-            <div class="tabs-header grid grid-cols-2 mb-8">
+            <div class="tabs-header grid grid-cols-3 mb-8">
                 <button id="tab-individual" class="tab-button active py-2 px-4 text-center border-b-2 border-blue-500 font-medium">Evaluación Individual</button>
-                <button id="tab-reentry" class="tab-button py-2 px-4 text-center border-b-2 border-transparent text-gray-500 font-medium">Reentrada de Datos</button>
+                <button id="tab-reentry" class="tab-button py-2 px-4 text-center border-b-2 border-transparent text-gray-500 font-medium">Reentrenamiento</button>
+                <button id="tab-evaluate" class="tab-button py-2 px-4 text-center border-b-2 border-transparent text-gray-500 font-medium">Evaluación de Modelo</button>
             </div>
             
             <div class="tabs-content">
@@ -49,8 +171,46 @@
                 <div id="content-individual" class="tab-content active">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
+                            <!-- Sección para cargar modelo -->
+                            <div class="mb-6 p-4 border rounded-md bg-white">
+                                <h3 class="text-lg font-semibold mb-2">Cargar Modelo</h3>
+                                <p class="text-sm text-gray-500 mb-4">
+                                    Si tienes un modelo previamente exportado, puedes cargarlo aquí para usarlo en la evaluación.
+                                </p>
+                                <div class="flex items-center space-x-2">
+                                    <input type="file" id="eval-model-file" class="hidden" accept=".json">
+                                    <label for="eval-model-file" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer">
+                                        Seleccionar Modelo
+                                    </label>
+                                    <span id="eval-model-name" class="text-sm"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Opción 1: Entrada de texto JSON -->
                             <h2 class="text-xl font-semibold mb-4">Ingresa los datos JSON</h2>
                             <textarea id="json-input" class="w-full min-h-[300px] p-4 border rounded-md font-mono" placeholder="Pega aquí el JSON con los datos a evaluar..."></textarea>
+                            
+                            <!-- Opción 2: Subida de archivo JSON -->
+                            <div class="mt-4 mb-4">
+                                <h3 class="text-lg font-semibold mb-2">O sube un archivo JSON</h3>
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mx-auto mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p class="text-sm text-gray-500 mb-2">
+                                        Arrastra y suelta tu archivo JSON aquí, o haz clic para seleccionar
+                                    </p>
+                                    <input type="file" id="eval-json-file" class="hidden" accept=".json,application/json">
+                                    <label for="eval-json-file" class="px-3 py-1 text-sm border rounded-md hover:bg-gray-50 cursor-pointer">Seleccionar archivo</label>
+                                    
+                                    <p id="eval-json-info" class="mt-2 text-sm hidden">
+                                        Archivo: <span id="eval-json-name" class="font-medium"></span> (<span id="eval-json-size"></span> KB)
+                                    </p>
+                                </div>
+                            </div>
+                            
                             <button id="evaluate-button" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Evaluar</button>
                             
                             <div id="eval-error" class="hidden mt-4 p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
@@ -82,22 +242,57 @@
                                 <div class="p-4">
                                     <p id="result-description"></p>
                                 </div>
+                                <div class="p-4 border-t">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-sm font-medium">Predicción:</span>
+                                        <span id="result-prediction" class="px-2 py-1 text-xs font-medium rounded-full bg-blue-500 text-white">Verdadera</span>
+                                    </div>
+                                    <div id="probability-container" class="mb-4">
+                                        <span class="text-sm font-medium">Probabilidad:</span>
+                                        <div class="mt-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+                                            <div id="probability-bar" class="h-full bg-blue-500" style="width: 0%"></div>
+                                        </div>
+                                        <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                            <span>0%</span>
+                                            <span>50%</span>
+                                            <span>100%</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="p-4 border-t flex justify-between">
                                     <button id="prev-button" class="px-4 py-2 border rounded-md hover:bg-gray-50" disabled>Anterior</button>
                                     <button id="next-button" class="px-4 py-2 border rounded-md hover:bg-gray-50" disabled>Siguiente</button>
+                                </div>
+                            </div>
+                            
+                            <div id="results-summary" class="mt-6 p-4 border rounded-lg shadow-sm bg-white">
+                                <h3 class="text-lg font-semibold mb-2">Resumen de Resultados</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">Total de noticias:</p>
+                                        <p id="total-news" class="font-medium">0</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Predicciones correctas:</p>
+                                        <p id="correct-predictions" class="font-medium">0</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-500">Exactitud:</p>
+                                        <p id="accuracy" class="font-medium">0%</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Tab 2: Reentrada de Datos -->
+                <!-- Tab 2: Reentrenamiento -->
                 <div id="content-reentry" class="tab-content hidden">
                     <div class="space-y-6">
                         <div class="border rounded-lg shadow-sm bg-white">
                             <div class="p-4 border-b">
-                                <h3 class="text-lg font-semibold">Subir archivo JSON</h3>
-                                <p class="text-sm text-gray-500">Sube un archivo JSON con los datos para reentrada al sistema</p>
+                                <h3 class="text-lg font-semibold">Subir archivo JSON para reentrenamiento</h3>
+                                <p class="text-sm text-gray-500">Sube un archivo JSON con datos etiquetados para reentrenar el modelo</p>
                             </div>
                             <div class="p-4 space-y-4">
                                 <div class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center">
@@ -141,7 +336,7 @@
                                 </div>
                                 
                                 <div id="upload-progress-container" class="hidden space-y-2">
-                                    <p class="text-sm">Subiendo archivo...</p>
+                                    <p class="text-sm">Reentrenando modelo...</p>
                                     <div class="w-full bg-gray-200 rounded-full h-2.5">
                                         <div id="upload-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
                                     </div>
@@ -153,13 +348,18 @@
                                             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                                             <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                         </svg>
-                                        <span class="font-bold">Subida completada</span>
+                                        <span class="font-bold">Reentrenamiento completado</span>
                                     </div>
-                                    <p class="mt-2">El archivo se ha subido correctamente.</p>
+                                    <p class="mt-2">El modelo ha sido reentrenado correctamente.</p>
+                                    <div class="mt-4 flex space-x-2">
+                                        <button id="export-trained-model" class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                            Exportar este modelo
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="p-4 border-t">
-                                <button id="upload-button" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Subir archivo</button>
+                                <button id="upload-button" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Reentrenar modelo</button>
                             </div>
                         </div>
                         
@@ -189,12 +389,211 @@
                                 </p>
                             </div>
                         </div>
+                        
+                        <div id="training-results" class="hidden border rounded-lg shadow-sm bg-white">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Resultados del Reentrenamiento</h3>
+                            </div>
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 class="font-medium mb-2">Métricas</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Exactitud:</p>
+                                                <p id="training-accuracy" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Precisión:</p>
+                                                <p id="training-precision" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Recall:</p>
+                                                <p id="training-recall" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">F1-Score:</p>
+                                                <p id="training-f1" class="font-medium">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Información del Modelo</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Versión:</p>
+                                                <p id="model-version" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Fecha de entrenamiento:</p>
+                                                <p id="training-date" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Muestras utilizadas:</p>
+                                                <p id="samples-count" class="font-medium">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <h4 class="font-medium mb-2">Matriz de Confusión</h4>
+                                    <div id="confusion-matrix" class="p-4 bg-gray-50 rounded-md">
+                                        <!-- La matriz de confusión se insertará aquí -->
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <h4 class="font-medium mb-2">Distribución de Clases</h4>
+                                    <div id="class-distribution" class="chart-container">
+                                        <!-- El gráfico se insertará aquí -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tab 3: Evaluación de Modelo -->
+                <div id="content-evaluate" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div class="border rounded-lg shadow-sm bg-white">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Evaluar Modelo Actual</h3>
+                                <p class="text-sm text-gray-500">Sube un archivo JSON con datos etiquetados para evaluar el rendimiento del modelo actual sin reentrenarlo</p>
+                            </div>
+                            <div class="p-4 space-y-4">
+                                <!-- Sección para cargar modelo específico para evaluación -->
+                                <div class="mb-4 p-4 border rounded-md bg-gray-50">
+                                    <h4 class="font-medium mb-2">Cargar Modelo para Evaluación</h4>
+                                    <p class="text-sm text-gray-500 mb-2">
+                                        Opcionalmente, puedes cargar un modelo específico para esta evaluación.
+                                    </p>
+                                    <div class="flex items-center space-x-2">
+                                        <input type="file" id="eval-specific-model-file" class="hidden" accept=".json">
+                                        <label for="eval-specific-model-file" class="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer">
+                                            Seleccionar Modelo
+                                        </label>
+                                        <span id="eval-specific-model-name" class="text-sm"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-2 border-dashed border-gray-300 rounded-lg p-10 text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p class="text-sm text-gray-500 mb-4">
+                                        Arrastra y suelta tu archivo JSON aquí, o haz clic para seleccionar
+                                    </p>
+                                    <input type="file" id="eval-file-upload" class="hidden" accept=".json,application/json">
+                                    <label for="eval-file-upload" class="px-4 py-2 border rounded-md hover:bg-gray-50 cursor-pointer">Seleccionar archivo</label>
+                                    
+                                    <p id="eval-file-info" class="mt-4 text-sm hidden">
+                                        Archivo seleccionado: <span id="eval-file-name" class="font-medium"></span> (<span id="eval-file-size"></span> KB)
+                                    </p>
+                                </div>
+                                
+                                <div id="eval-upload-error" class="hidden p-4 border border-red-200 bg-red-50 rounded-md text-red-800">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                        </svg>
+                                        <span class="font-bold">Error</span>
+                                    </div>
+                                    <p id="eval-upload-error-message" class="mt-2"></p>
+                                </div>
+                                
+                                <div id="eval-file-valid" class="hidden p-4 border border-green-200 bg-green-50 rounded-md text-green-800">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                        <span class="font-bold">Archivo válido</span>
+                                    </div>
+                                    <p id="eval-file-valid-message" class="mt-2"></p>
+                                </div>
+                                
+                                <div id="eval-progress-container" class="hidden space-y-2">
+                                    <p class="text-sm">Evaluando modelo...</p>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="eval-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border-t">
+                                <button id="eval-button" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Evaluar modelo</button>
+                            </div>
+                        </div>
+                        
+                        <div id="eval-results" class="hidden border rounded-lg shadow-sm bg-white">
+                            <div class="p-4 border-b">
+                                <h3 class="text-lg font-semibold">Resultados de la Evaluación</h3>
+                            </div>
+                            <div class="p-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 class="font-medium mb-2">Métricas</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Exactitud:</p>
+                                                <p id="eval-accuracy" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Precisión:</p>
+                                                <p id="eval-precision" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">Recall:</p>
+                                                <p id="eval-recall" class="font-medium">-</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">F1-Score:</p>
+                                                <p id="eval-f1" class="font-medium">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Información</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <p class="text-sm text-gray-500">Muestras evaluadas:</p>
+                                                <p id="eval-samples-count" class="font-medium">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <h4 class="font-medium mb-2">Matriz de Confusión</h4>
+                                    <div id="eval-confusion-matrix" class="p-4 bg-gray-50 rounded-md">
+                                        <!-- La matriz de confusión se insertará aquí -->
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <h4 class="font-medium mb-2">Distribución de Clases</h4>
+                                    <div id="eval-class-distribution" class="chart-container">
+                                        <!-- El gráfico se insertará aquí -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- Tooltip personalizado -->
+    <div id="custom-tooltip" class="custom-tooltip"></div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

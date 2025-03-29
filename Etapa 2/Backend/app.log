@@ -1,0 +1,4 @@
+2025-03-29 04:19:57,813 - main - WARNING - No se encontraron archivos del modelo. Se entrenará uno nuevo cuando sea requerido.
+2025-03-29 04:30:01,530 - main - INFO - Modelo, vectorizador e información guardados correctamente.
+2025-03-29 04:30:01,530 - main - INFO - Modelo reentrenado con 200 muestras. Accuracy: 1.0000
+2025-03-29 04:30:04,085 - main - INFO - Modelo exportado correctamente.

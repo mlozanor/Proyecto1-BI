@@ -1,0 +1,45 @@
+2025-03-29 03:12:58,941 - fake-news-api - WARNING - No se encontró el modelo en models\pipeline_model.pkl. Se debe entrenar primero.
+2025-03-29 03:13:15,840 - fake-news-api - WARNING - Se intentó verificar el estado sin un modelo cargado
+2025-03-29 03:13:35,090 - fake-news-api - INFO - Recibida solicitud de predicción con 2 noticias
+2025-03-29 03:13:35,091 - fake-news-api - ERROR - Se intentó predecir sin un modelo cargado
+2025-03-29 03:14:43,568 - fake-news-api - INFO - Recibida solicitud de predicción con 2 noticias
+2025-03-29 03:14:43,569 - fake-news-api - ERROR - Se intentó predecir sin un modelo cargado
+2025-03-29 03:16:10,135 - fake-news-api - WARNING - Se intentó verificar el estado sin un modelo cargado
+2025-03-29 03:16:16,396 - fake-news-api - INFO - Recibida solicitud de reentrenamiento con 200 noticias
+2025-03-29 03:16:16,417 - fake-news-api - INFO - Datos divididos: 160 para entrenamiento, 40 para prueba
+2025-03-29 03:16:17,477 - fake-news-api - INFO - Creando un nuevo modelo desde cero
+2025-03-29 03:16:17,478 - fake-news-api - INFO - Iniciando reentrenamiento del modelo
+2025-03-29 03:16:17,610 - fake-news-api - INFO - Nuevo modelo guardado en models\pipeline_model.pkl
+2025-03-29 03:16:17,632 - fake-news-api - INFO - Reentrenamiento completado con éxito. Exactitud: 1.0000
+2025-03-29 03:17:16,548 - fake-news-api - INFO - Recibida solicitud de evaluación con 200 noticias
+2025-03-29 03:17:16,572 - fake-news-api - INFO - Evaluación completada. Exactitud: 1.0000
+2025-03-29 03:33:49,371 - fake-news-api - INFO - Modelo cargado correctamente desde models\pipeline_model.pkl
+2025-03-29 03:33:49,379 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-03-29 03:34:27,630 - fake-news-api - INFO - Modelo cargado correctamente desde models\pipeline_model.pkl
+2025-03-29 03:37:14,218 - fake-news-api - INFO - Recibida solicitud de reentrenamiento con 200 noticias
+2025-03-29 03:37:14,222 - fake-news-api - INFO - Datos divididos: 160 para entrenamiento, 40 para prueba
+2025-03-29 03:37:14,225 - fake-news-api - INFO - Iniciando reentrenamiento del modelo
+2025-03-29 03:37:14,394 - fake-news-api - INFO - Modelo anterior guardado en models\history\pipeline_model_20250329_033714.pkl
+2025-03-29 03:37:14,431 - fake-news-api - INFO - Nuevo modelo guardado en models\pipeline_model.pkl
+2025-03-29 03:37:14,442 - fake-news-api - INFO - Reentrenamiento completado con éxito. Exactitud: 1.0000
+2025-03-29 03:38:44,216 - fake-news-api - INFO - Recibida solicitud de evaluación con 200 noticias
+2025-03-29 03:38:44,234 - fake-news-api - INFO - Evaluación completada. Exactitud: 1.0000
+2025-03-29 03:51:07,245 - fake-news-api - INFO - Modelo cargado correctamente desde models\pipeline_model.pkl
+2025-03-29 03:51:18,843 - fake-news-api - INFO - Recibida solicitud de reentrenamiento con 200 noticias
+2025-03-29 03:51:18,848 - fake-news-api - INFO - Datos divididos: 160 para entrenamiento, 40 para prueba
+2025-03-29 03:51:18,849 - fake-news-api - INFO - Iniciando reentrenamiento del modelo
+2025-03-29 03:51:19,019 - fake-news-api - INFO - Modelo anterior guardado en models\history\pipeline_model_20250329_035118.pkl
+2025-03-29 03:51:19,047 - fake-news-api - INFO - Nuevo modelo guardado en models\pipeline_model.pkl
+2025-03-29 03:51:19,061 - fake-news-api - INFO - Reentrenamiento completado. Exactitud: 1.0000
+2025-03-29 04:06:39,282 - fake-news-api - INFO - Recibida solicitud de reentrenamiento con 200 noticias
+2025-03-29 04:06:39,286 - fake-news-api - INFO - Datos divididos: 160 para entrenamiento, 40 para prueba
+2025-03-29 04:06:39,287 - fake-news-api - INFO - Iniciando reentrenamiento del modelo
+2025-03-29 04:06:39,444 - fake-news-api - INFO - Modelo anterior guardado en models\history\pipeline_model_20250329_040639.pkl
+2025-03-29 04:06:39,465 - fake-news-api - INFO - Nuevo modelo guardado en models\pipeline_model.pkl
+2025-03-29 04:06:39,483 - fake-news-api - INFO - Reentrenamiento completado. Exactitud: 1.0000
+2025-03-29 04:07:22,178 - fake-news-api - INFO - Recibida solicitud de predicción con 200 noticias
+2025-03-29 04:07:22,216 - fake-news-api - INFO - Predicción completada. Exactitud: 1.0000
