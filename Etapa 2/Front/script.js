@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function checkApiStatus() {
         // Verificar endpoint de predicción
         try {
-            const predictResponse = await fetch('http://0.0.0.0:8000/predict/', {
+            const predictResponse = await fetch('http://127.0.0.1:8000/predict/', {
                 method: 'HEAD',
                 headers: { 'Content-Type': 'application/json' },
             }).catch(() => ({ ok: false }));
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Verificar endpoint de reentrenamiento
         try {
-            const retrainResponse = await fetch('http://0.0.0.0:8000/retrain/', {
+            const retrainResponse = await fetch('http://127.0.0.1:8000/retrain/', {
                 method: 'HEAD',
                 headers: { 'Content-Type': 'application/json' },
             }).catch(() => ({ ok: false }));
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Enviar datos al endpoint de predicción
             try {
-                const response = await fetch('http://0.0.0.0:8000/predict/', {
+                const response = await fetch('http://127.0.0.1:8000 /predict/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('file', selectedFile);
             
             // Enviar archivo al endpoint de reentrenamiento
-            const response = await fetch('http://0.0.0.0:8000/retrain/', {
+            const response = await fetch('http://127.0.0.1:8000 /retrain/', {
                 method: 'POST',
                 body: formData,
             });
