@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import json
 import numpy as np
@@ -34,6 +34,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Permitir todos los métodos
     allow_headers=["*"],  # Permitir todos los headers
+    expose_headers=["Content-Disposition"]  # Importante para descargas
 )
 
 # Rutas para los archivos del modelo
@@ -440,6 +441,21 @@ def export_model():
         raise HTTPException(status_code=400, detail="Modelo no entrenado. Por favor, entrene el modelo primero.")
     
     try:
+        # Función auxiliar para convertir arrays de NumPy a listas
+        def numpy_to_json_serializable(obj):
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            elif isinstance(obj, np.integer):
+                return int(obj)
+            elif isinstance(obj, np.floating):
+                return float(obj)
+            elif isinstance(obj, (list, tuple)):
+                return [numpy_to_json_serializable(item) for item in obj]
+            elif isinstance(obj, dict):
+                return {key: numpy_to_json_serializable(value) for key, value in obj.items()}
+            else:
+                return obj
+        
         # Extraer información del vectorizador
         vectorizer_data = {
             "vocabulary": vectorizer.vocabulary_,
@@ -456,10 +472,10 @@ def export_model():
         
         # Crear estructura del modelo exportado
         exported_model = {
-            "model_info": model_info,
+            "model_info": numpy_to_json_serializable(model_info),
             "model_data": {
-                "vectorizer": vectorizer_data,
-                "classifier": model_data
+                "vectorizer": numpy_to_json_serializable(vectorizer_data),
+                "classifier": numpy_to_json_serializable(model_data)
             }
         }
         
@@ -517,6 +533,21 @@ async def import_model(request: Request):
     except Exception as e:
         logger.error(f"Error al importar el modelo: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error al importar el modelo: {str(e)}")
+
+# Endpoints para descargar el modelo y su información
+@app.get("/download-model/")
+async def download_model():
+    if os.path.exists(MODEL_PATH):
+        return FileResponse(MODEL_PATH, filename="modelo_entrenado.pkl", media_type='application/octet-stream')
+    else:
+        raise HTTPException(status_code=404, detail="Modelo no encontrado")
+
+@app.get("/download-model-info/")
+async def download_model_info():
+    if os.path.exists(MODEL_INFO_PATH):
+        return FileResponse(MODEL_INFO_PATH, filename="info_modelo.json", media_type='application/json')
+    else:
+        raise HTTPException(status_code=404, detail="Archivo de información del modelo no encontrado")
 
 if __name__ == "__main__":
     import uvicorn
