@@ -115,13 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(tabId).classList.add('active');
         });
     });
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 8e09471572cd93ad913611781bed8e4985573d30
     
     // Verificar estado de la API
     async function checkApiStatus() {
         // Verificar endpoint de predicción
         try {
+<<<<<<< HEAD
             const predictResponse = await fetch('http://localhost:8000/predict/', {
                 method: 'GET',
+=======
+            const predictResponse = await fetch('http://127.0.0.1:8000/predict/', {
+                method: 'HEAD',
+>>>>>>> 8e09471572cd93ad913611781bed8e4985573d30
                 headers: { 'Content-Type': 'application/json' },
             }).catch(() => ({ ok: false }));
             
@@ -143,7 +152,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 predictBadge.textContent = 'Desconectado';
             }
         } catch (error) {
+<<<<<<< HEAD
             console.error("Error verificando API predict:", error);
+=======
+=======
+});
+
+// Verificar estado de la API
+async function checkApiStatus() {
+    // Verificar endpoint de predicción
+    try {
+        const predictResponse = await fetch('http://localhost:8000/predict/', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        }).catch(() => ({ ok: false }));
+        
+        if (predictResponse.ok) {
+            predictStatus.classList.remove('bg-yellow-50', 'bg-red-50');
+            predictStatus.classList.add('bg-green-50');
+            predictStatus.querySelector('svg').classList.remove('text-yellow-600', 'text-red-600');
+            predictStatus.querySelector('svg').classList.add('text-green-600');
+            predictBadge.classList.remove('bg-yellow-500', 'bg-red-500');
+            predictBadge.classList.add('bg-green-500');
+            predictBadge.textContent = 'En línea';
+        } else {
+>>>>>>> 8dae0e7862bb6c8188a25c89d6e21ce76d86a4ec
+>>>>>>> 8e09471572cd93ad913611781bed8e4985573d30
             predictStatus.classList.remove('bg-yellow-50', 'bg-green-50');
             predictStatus.classList.add('bg-red-50');
             predictStatus.querySelector('svg').classList.remove('text-yellow-600', 'text-green-600');
@@ -153,10 +187,18 @@ document.addEventListener('DOMContentLoaded', function() {
             predictBadge.textContent = 'Desconectado';
         }
         
+<<<<<<< HEAD
         // Verificar endpoint de reentrenamiento
         try {
             const retrainResponse = await fetch('http://localhost:8000/retrain/', {
                 method: 'GET',
+=======
+<<<<<<< HEAD
+        // Verificar endpoint de reentrenamiento
+        try {
+            const retrainResponse = await fetch('http://127.0.0.1:8000/retrain/', {
+                method: 'HEAD',
+>>>>>>> 8e09471572cd93ad913611781bed8e4985573d30
                 headers: { 'Content-Type': 'application/json' },
             }).catch(() => ({ ok: false }));
             
@@ -178,7 +220,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 retrainBadge.textContent = 'Desconectado';
             }
         } catch (error) {
+<<<<<<< HEAD
             console.error("Error verificando API retrain:", error);
+=======
+=======
+        if (retrainResponse.ok) {
+            retrainStatus.classList.remove('bg-yellow-50', 'bg-red-50');
+            retrainStatus.classList.add('bg-green-50');
+            retrainStatus.querySelector('svg').classList.remove('text-yellow-600', 'text-red-600');
+            retrainStatus.querySelector('svg').classList.add('text-green-600');
+            retrainBadge.classList.remove('bg-yellow-500', 'bg-red-500');
+            retrainBadge.classList.add('bg-green-500');
+            retrainBadge.textContent = 'En línea';
+        } else {
+>>>>>>> 8dae0e7862bb6c8188a25c89d6e21ce76d86a4ec
+>>>>>>> 8e09471572cd93ad913611781bed8e4985573d30
             retrainStatus.classList.remove('bg-yellow-50', 'bg-green-50');
             retrainStatus.classList.add('bg-red-50');
             retrainStatus.querySelector('svg').classList.remove('text-yellow-600', 'text-green-600');
@@ -188,12 +244,283 @@ document.addEventListener('DOMContentLoaded', function() {
             retrainBadge.textContent = 'Desconectado';
         }
     }
+<<<<<<< HEAD
     
     // Verificar estado de la API al cargar la página
     checkApiStatus();
     
     // Evaluación individual
     evaluateButton.addEventListener('click', async () => {
+=======
+}
+
+// Verificar estado de la API al cargar la página
+checkApiStatus();
+
+// Evaluación individual
+evaluateButton.addEventListener('click', async () => {
+    try {
+        // Validar el JSON
+        const jsonText = jsonInput.value.trim();
+        if (!jsonText && !selectedEvalJsonFile) {
+            throw new Error('Por favor, ingresa datos JSON válidos o sube un archivo JSON');
+        }
+        
+        let jsonData;
+        
+        if (jsonText) {
+            // Usar el texto JSON ingresado
+            jsonData = JSON.parse(jsonText);
+            if (!jsonData.data || !Array.isArray(jsonData.data)) {
+                throw new Error('El JSON debe contener un array "data"');
+            }
+<<<<<<< HEAD
+            
+            // Ocultar mensajes de error
+            evalError.classList.add('hidden');
+            
+            // Enviar datos al endpoint de predicción
+            try {
+                const response = await fetch('http://127.0.0.1:8000 /predict/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: jsonText,
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error en la respuesta: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                parsedData = result;
+                currentIndex = 0;
+                
+                // Mostrar resultados
+                displayResult();
+                resultContainer.classList.remove('hidden');
+                resultContainer.classList.add('fade-in');
+            } catch (fetchErr) {
+                throw new Error(`Error al comunicarse con el servidor: ${fetchErr.message}`);
+            }
+        } catch (err) {
+            // Mostrar mensaje de error
+            evalErrorMessage.textContent = err.message;
+            evalError.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+        }
+    });
+    
+    // Mostrar resultado actual
+    function displayResult() {
+        if (!parsedData || !parsedData.data || parsedData.data.length === 0) {
+            resultContainer.classList.add('hidden');
+            return;
+        }
+        
+        const item = parsedData.data[currentIndex];
+        
+        // Actualizar elementos
+        resultTitle.textContent = item.Titulo;
+        resultMeta.textContent = `ID: ${item.ID} | Fecha: ${item.Fecha}`;
+        resultDescription.textContent = item.Descripcion;
+        
+        // Actualizar etiqueta
+        if (item.Label === 1) {
+            resultLabel.textContent = 'Verdadera';
+            resultLabel.classList.remove('bg-red-500');
+            resultLabel.classList.add('bg-green-500');
+        } else {
+            resultLabel.textContent = 'Falsa';
+            resultLabel.classList.remove('bg-green-500');
+            resultLabel.classList.add('bg-red-500');
+        }
+        
+        // Actualizar contador
+        currentIndexElement.textContent = currentIndex + 1;
+        totalItemsElement.textContent = parsedData.data.length;
+        
+        // Actualizar estado de los botones
+        prevButton.disabled = currentIndex === 0;
+        nextButton.disabled = currentIndex === parsedData.data.length - 1;
+    }
+    
+    // Botones de navegación
+    prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            displayResult();
+        }
+    });
+    
+    nextButton.addEventListener('click', () => {
+        if (parsedData && currentIndex < parsedData.data.length - 1) {
+            currentIndex++;
+            displayResult();
+        }
+    });
+    
+    // Reentrada de datos - Selección de archivo
+    fileUpload.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            selectedFile = e.target.files[0];
+            
+            // Validar tipo de archivo
+            if (selectedFile.type !== 'application/json') {
+                uploadErrorMessage.textContent = 'Por favor, selecciona un archivo JSON válido';
+                uploadError.classList.remove('hidden');
+                fileInfo.classList.add('hidden');
+                fileValid.classList.add('hidden');
+                uploadButton.disabled = true;
+                previewContainer.classList.add('hidden');
+                selectedFile = null;
+                return;
+            }
+            
+            // Mostrar información del archivo
+            fileName.textContent = selectedFile.name;
+            fileSize.textContent = (selectedFile.size / 1024).toFixed(2);
+            fileInfo.classList.remove('hidden');
+            
+            // Ocultar mensajes de error
+            uploadError.classList.add('hidden');
+            
+            // Leer y validar el archivo
+=======
+        } else if (selectedEvalJsonFile) {
+            // Usar el archivo JSON subido
+>>>>>>> 8dae0e7862bb6c8188a25c89d6e21ce76d86a4ec
+            const reader = new FileReader();
+            jsonData = await new Promise((resolve, reject) => {
+                reader.onload = (event) => {
+                    try {
+                        const content = event.target.result;
+                        const parsed = JSON.parse(content);
+                        if (!parsed.data || !Array.isArray(parsed.data)) {
+                            reject(new Error('El JSON debe contener un array "data"'));
+                        } else {
+                            resolve(parsed);
+                        }
+                    } catch (err) {
+                        reject(new Error('Error al analizar el JSON. Asegúrate de que el formato sea correcto.'));
+                    }
+                };
+                reader.onerror = () => reject(new Error('Error al leer el archivo'));
+                reader.readAsText(selectedEvalJsonFile);
+            });
+        }
+        
+        // Ocultar mensajes de error
+        evalError.classList.add('hidden');
+        
+        // Preparar datos para la solicitud
+        const requestData = {
+            data: jsonData.data
+        };
+        
+<<<<<<< HEAD
+        previewItems.forEach(item => {
+            const row = document.createElement('tr');
+            row.className = 'border-b';
+            
+            // ID
+            const idCell = document.createElement('td');
+            idCell.className = 'p-2';
+            idCell.textContent = item.ID;
+            row.appendChild(idCell);
+            
+            // Etiqueta
+            const labelCell = document.createElement('td');
+            labelCell.className = 'p-2';
+            const labelBadge = document.createElement('span');
+            labelBadge.className = `px-2 py-1 text-xs font-medium rounded-full text-white ${item.Label === 1 ? 'bg-green-500' : 'bg-red-500'}`;
+            labelBadge.textContent = item.Label === 1 ? 'Verdadera' : 'Falsa';
+            labelCell.appendChild(labelBadge);
+            row.appendChild(labelCell);
+            
+            // Título
+            const titleCell = document.createElement('td');
+            titleCell.className = 'p-2 truncate max-w-[300px]';
+            titleCell.textContent = item.Titulo;
+            row.appendChild(titleCell);
+            
+            // Fecha
+            const dateCell = document.createElement('td');
+            dateCell.className = 'p-2';
+            dateCell.textContent = item.Fecha;
+            row.appendChild(dateCell);
+            
+            previewTableBody.appendChild(row);
+        });
+        
+        // Mostrar mensaje de "más registros" si hay más de 3
+        if (data.data.length > 3) {
+            previewMore.textContent = `... y ${data.data.length - 3} registros más`;
+            previewMore.classList.remove('hidden');
+        } else {
+            previewMore.classList.add('hidden');
+        }
+        
+        // Mostrar contenedor de vista previa
+        previewContainer.classList.remove('hidden');
+        previewContainer.classList.add('fade-in');
+    }
+    
+    // Subir archivo
+    uploadButton.addEventListener('click', async () => {
+        if (!selectedFile) return;
+        
+        // Iniciar proceso de subida
+        uploadButton.disabled = true;
+        uploadProgressContainer.classList.remove('hidden');
+        uploadSuccess.classList.add('hidden');
+        
+        // Reiniciar barra de progreso
+        uploadProgressBar.style.width = '0%';
+        
+        try {
+            // Simular progreso inicial
+            const progressInterval = setInterval(() => {
+                const currentWidth = parseInt(uploadProgressBar.style.width, 10);
+                if (currentWidth >= 90) {
+                    clearInterval(progressInterval);
+                } else {
+                    uploadProgressBar.style.width = (currentWidth + 10) + '%';
+                }
+            }, 300);
+            
+            // Crear FormData
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            // Enviar archivo al endpoint de reentrenamiento
+            const response = await fetch('http://127.0.0.1:8000 /retrain/', {
+                method: 'POST',
+                body: formData,
+=======
+        // Si hay un modelo cargado, incluirlo en la solicitud
+        if (selectedEvalModelFile) {
+            const reader = new FileReader();
+            const modelData = await new Promise((resolve, reject) => {
+                reader.onload = (event) => {
+                    try {
+                        const content = event.target.result;
+                        resolve(JSON.parse(content));
+                    } catch (err) {
+                        reject(new Error('Error al analizar el modelo JSON'));
+                    }
+                };
+                reader.onerror = () => reject(new Error('Error al leer el archivo del modelo'));
+                reader.readAsText(selectedEvalModelFile);
+>>>>>>> 8dae0e7862bb6c8188a25c89d6e21ce76d86a4ec
+            });
+            
+            requestData.model = modelData;
+        }
+        
+        // Enviar datos al endpoint de predicción
+>>>>>>> 8e09471572cd93ad913611781bed8e4985573d30
         try {
             // Validar el JSON
             const jsonText = jsonInput.value.trim();
